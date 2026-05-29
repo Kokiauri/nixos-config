@@ -12,6 +12,11 @@
   # release notes for a list of state version changes in each release.
   home.stateVersion = "25.11"; # Please read the comment before changing.
 
+  imports = [
+    inputs.lazyvim.homeManagerModules.default
+    ./lazyvim.nix
+  ];
+
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
@@ -22,6 +27,7 @@
     jetbrains.idea
     jetbrains.pycharm
     gh
+    docker
 
     # Messaging
     telegram-desktop
@@ -41,7 +47,6 @@
     nautilus
     brightnessctl
     playerctl
-    hyprlock
     hypridle
     
     # Terminal & Shell
@@ -59,6 +64,7 @@
     anki
     obs-studio
     jp2a
+    keymapper
 	
     # Misc
     flatpak
@@ -74,11 +80,11 @@
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
   home.file = {
-    ".config/btop".source = ./dotfiles/btop;
-    ".config/fish".source = ./dotfiles/fish;
-    ".config/hypr".source = ./dotfiles/hypr;
-    ".config/kitty".source = ./dotfiles/kitty;
-    ".config/noctalia".source = ./dotfiles/noctalia;
+    ".config/btop".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/btop";
+    ".config/fish".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/fish";
+    ".config/hypr".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/hypr";
+    ".config/kitty".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/kitty";
+    ".config/noctalia".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/noctalia";
     # ".config/spicetify".source = ./dotfiles/spicetify; # Managed by spicetify-nix
   };
 
