@@ -28,8 +28,10 @@
     jetbrains.pycharm
     gh
     docker
-    ollama
+    # ollama
+    codex
 
+  
     # Messaging
     telegram-desktop
     discord
@@ -67,7 +69,7 @@
     jp2a
     keymapper
     moonlight-qt
-
+    sunshine
     # Misc
     flatpak
     gnome-remote-desktop
