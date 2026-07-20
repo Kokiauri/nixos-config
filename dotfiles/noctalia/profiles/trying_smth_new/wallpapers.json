@@ -2,18 +2,18 @@
   "screens": [
     {
       "name": "HDMI-A-1",
-      "light": "/home/saponela/Pictures/wall/wallhaven-8ggqqj.jpg",
-      "dark": "/home/saponela/Pictures/wall/wallhaven-8ggqqj.jpg"
+      "light": "/home/saponela/Pictures/wall/wallhaven-8x1ww2.jpg",
+      "dark": "/home/saponela/Pictures/wall/wallhaven-8x1ww2.jpg"
     },
     {
       "name": "HEADLESS-2",
-      "light": "/home/saponela/Pictures/wall/wallhaven-8ggqqj.jpg",
-      "dark": "/home/saponela/Pictures/wall/wallhaven-8ggqqj.jpg"
+      "light": "/home/saponela/Pictures/wall/wallhaven-8x1ww2.jpg",
+      "dark": "/home/saponela/Pictures/wall/wallhaven-8x1ww2.jpg"
     },
     {
       "name": "eDP-1",
-      "light": "/home/saponela/Pictures/wall/wallhaven-8ggqqj.jpg",
-      "dark": "/home/saponela/Pictures/wall/wallhaven-8ggqqj.jpg"
+      "light": "/home/saponela/Pictures/wall/wallhaven-8x1ww2.jpg",
+      "dark": "/home/saponela/Pictures/wall/wallhaven-8x1ww2.jpg"
     }
   ]
 }
