@@ -294,7 +294,7 @@
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
         "monitorForColors": "",
-        "predefinedScheme": "Tokyo Night",
+        "predefinedScheme": "Mizuki-Akiyama",
         "schedulingMode": "off",
         "syncGsettings": true,
         "useWallpaperColors": false
@@ -449,7 +449,7 @@
         },
         "language": "",
         "lockOnSuspend": true,
-        "lockScreenAnimations": false,
+        "lockScreenAnimations": true,
         "lockScreenBlur": 0.56,
         "lockScreenCountdownDuration": 10000,
         "lockScreenMonitors": [
@@ -521,7 +521,7 @@
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
         "networkPanelView": "wifi",
-        "wifiDetailsViewMode": "list"
+        "wifiDetailsViewMode": "grid"
     },
     "nightLight": {
         "autoSchedule": true,
@@ -689,10 +689,6 @@
             },
             {
                 "enabled": true,
-                "id": "telegram"
-            },
-            {
-                "enabled": true,
                 "id": "hyprland"
             },
             {
@@ -706,6 +702,10 @@
             {
                 "enabled": true,
                 "id": "discord"
+            },
+            {
+                "enabled": true,
+                "id": "vicinae"
             }
         ],
         "enableUserTheming": true
