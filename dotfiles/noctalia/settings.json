@@ -264,14 +264,14 @@
     },
     "colorSchemes": {
         "darkMode": true,
-        "generationMethod": "monochrome",
+        "generationMethod": "content",
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
         "monitorForColors": "",
-        "predefinedScheme": "Mine",
+        "predefinedScheme": "Gruvbox Material",
         "schedulingMode": "off",
         "syncGsettings": true,
-        "useWallpaperColors": true
+        "useWallpaperColors": false
     },
     "controlCenter": {
         "cards": [
