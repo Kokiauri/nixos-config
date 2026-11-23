@@ -8,6 +8,10 @@
 
       # Languages
       lang.nix.enable = true;
+      lang.clangd = {
+        enable = true; # C/C++
+        installDependencies = true; # Install clangd (clang-tools)
+      };
       lang.python = {
         enable = true;
         installDependencies = true; # Install ruff
@@ -174,10 +178,13 @@
           opts = {},
         }
       '';
-      "smear-cursor.nvim" = ''
+      # Cursor animation is handled by ghostty
+      "mini.animate" = ''
         return {
-          "sphamba/smear-cursor.nvim",
-          opts = {},
+          "nvim-mini/mini.animate",
+          opts = {
+            cursor = { enable = false },
+          },
         }
       '';
       "snacks.nvim" = ''
@@ -528,7 +535,8 @@
             "milanglacier/minuet-ai.nvim",
             dependencies = { "nvim-lua/plenary.nvim" },
             opts = {
-              provider = "openai_fim_compatible",
+              -- "claude" (Haiku, needs ANTHROPIC_API_KEY) or "openai_fim_compatible" (local Ollama)
+              provider = "claude",
               n_completions = 1,
               context_window = 2048,
               debounce = 300,
@@ -555,6 +563,13 @@
                 },
               },
               provider_options = {
+                claude = {
+                  model = "claude-haiku-4-5-20251001",
+                  end_point = "http://rpi5-2:8317/v1/messages", -- same proxy Claude Code uses
+                  api_key = "ANTHROPIC_API_KEY",
+                  max_tokens = 256,
+                  stream = true,
+                },
                 openai_fim_compatible = {
                   model = "qwen2.5-coder:1.5b",
                   end_point = "http://127.0.0.1:11434/v1/completions",

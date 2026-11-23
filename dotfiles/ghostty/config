@@ -1,0 +1,60 @@
+# Ghostty config — `ghostty +show-config --default --docs` lists every option.
+# Reload live with ctrl+shift+,
+
+# --- Theme ---
+theme = gruvbox-material-dark-soft
+window-theme = dark
+# gruvbox-styled titlebar and tabs (tabs live in the titlebar)
+gtk-custom-css = gruvbox.css
+gtk-titlebar-style = tabs
+gtk-toolbar-style = flat
+gtk-wide-tabs = false
+
+# --- Font ---
+font-family = IosevkaTerm Nerd Font
+font-size = 11
+
+# --- Cursor ---
+cursor-style = block
+cursor-style-blink = true
+cursor-color = #e78a4e
+cursor-text = #282828
+
+# --- Shaders ---
+# faint orange trail on bigger cursor jumps. For a retro CRT look add:
+#   custom-shader = shaders/crt.glsl
+custom-shader = shaders/cursor-trail.glsl
+
+# --- Window ---
+# no vertical padding, like kitty; the leftover strip (window height isn't a
+# whole number of rows) gets the plain background. Don't use `extend` here:
+# it stretches nvim's statusline / the tmux bar into the padding.
+window-padding-x = 6
+window-padding-y = 0
+window-padding-balance = true
+window-padding-color = background
+background-opacity = 0.96
+window-width = 110
+window-height = 32
+unfocused-split-opacity = 0.85
+confirm-close-surface = false
+resize-overlay = never
+
+# --- Behaviour ---
+mouse-hide-while-typing = true
+copy-on-select = clipboard
+# bytes
+scrollback-limit = 20000000
+
+# no-cursor: keep the block cursor instead of a bar at the fish prompt.
+# ssh-*: copy ghostty's terminfo to remote hosts so TERM=xterm-ghostty doesn't break vim/htop there.
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo
+
+# --- Keys (kitty-ish) ---
+keybind = ctrl+shift+enter=new_split:auto
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+w=close_surface
+keybind = ctrl+shift+left=goto_split:left
+keybind = ctrl+shift+right=goto_split:right
+keybind = ctrl+shift+up=goto_split:up
+keybind = ctrl+shift+down=goto_split:down

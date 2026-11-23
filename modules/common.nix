@@ -88,9 +88,17 @@ in
     freeSwapThreshold = 10;
     enableNotifications = true; # desktop notification when something gets killed
     extraArgs = [
-      "--prefer" "^(chrome|chromium|firefox|electron|code|java|node)$"
+      # Browser tab processes ("Isolated Web Co") die gracefully; java (Minecraft) is no longer preferred
+      "--prefer" "^(Isolated Web Co|chrome|chromium|electron|code|node)$"
       "--avoid" "^(gnome-shell|Hyprland|Xwayland|gdm|pipewire|wireplumber|systemd|sshd)$"
     ];
+  };
+
+  # Compressed swap in RAM; used before the disk swap partition
+  zramSwap = {
+    enable = true;
+    memoryPercent = 50;
+    priority = 100;
   };
 
   # Define a user account.
@@ -182,7 +190,36 @@ in
 
   # List packages installed in system profile.
   environment.systemPackages = with pkgs; [
-    inputs.zen-browser.packages.${stdenv.hostPlatform.system}.default
+    (inputs.zen-browser.packages.${stdenv.hostPlatform.system}.default.override {
+      extraPolicies = {
+        ExtensionSettings."uBlock0@raymondhill.net" = {
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+          installation_mode = "force_installed";
+        };
+        # uBO managed storage; re-applied on every start, so dashboard edits to these revert
+        "3rdparty".Extensions."uBlock0@raymondhill.net" = {
+          # replace= filters only run from trusted lists; trust "My filters"
+          advancedSettings = [ [ "trustedListPrefixes" "ublock- user-" ] ];
+          toOverwrite = {
+            filterLists = [
+              "user-filters"
+              "ublock-filters"
+              "ublock-badware"
+              "ublock-privacy"
+              "ublock-quick-fixes"
+              "ublock-unbreak"
+              "easylist"
+              "easyprivacy"
+              "urlhaus-1"
+              "plowe-0"
+            ];
+            # No `filters` here: toOverwrite would replace hand-made "My filters".
+            # cavea.plus rule lives there instead (empty /ads list = "no ads", not "blocked"):
+            #   ||cavea.plus/api/v1/ads?$xhr,replace=/[\s\S]+/[]/
+          };
+        };
+      };
+    })
     (lutris.override {
       extraPkgs = pkgs: with pkgs; [
         wineWow64Packages.stable

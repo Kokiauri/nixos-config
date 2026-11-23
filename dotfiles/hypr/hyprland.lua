@@ -19,11 +19,13 @@ if hostname == "tetri" then
         scale    = 1,
     })
 
+    -- HDMI (TV) mirrors the laptop display
     hl.monitor({
         output   = "HDMI-A-1",
         mode     = "1920x1080@60",
-        position = "1920x0",
+        position = "auto",
         scale    = 1,
+        mirror   = "eDP-1",
     })
 
     -- Fallback for unconfigured monitors
@@ -34,19 +36,10 @@ if hostname == "tetri" then
         scale    = 1,
     })
 
-    -- Laptop display (eDP-1) workspaces
-    hl.workspace_rule({ workspace = "1", monitor = "eDP-1", default = true })
-    hl.workspace_rule({ workspace = "2", monitor = "eDP-1" })
-    hl.workspace_rule({ workspace = "3", monitor = "eDP-1" })
-    hl.workspace_rule({ workspace = "4", monitor = "eDP-1" })
-    hl.workspace_rule({ workspace = "5", monitor = "eDP-1" })
-    hl.workspace_rule({ workspace = "10", monitor = "eDP-1" })
-
-    -- HDMI monitor workspaces
-    hl.workspace_rule({ workspace = "6", monitor = "HDMI-A-1", default = true })
-    hl.workspace_rule({ workspace = "7", monitor = "HDMI-A-1" })
-    hl.workspace_rule({ workspace = "8", monitor = "HDMI-A-1" })
-    hl.workspace_rule({ workspace = "9", monitor = "HDMI-A-1" })
+    -- All workspaces on the laptop display (eDP-1)
+    for i = 1, 10 do
+        hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1", default = (i == 1) })
+    end
 else
     -- Desktop PC display
     hl.monitor({
@@ -78,7 +71,7 @@ end
 ---------------------
 
 local home        = os.getenv("HOME") or "/home/saponela"
-local terminal    = "kitty"
+local terminal    = "ghostty"
 local fileManager = "nautilus"
 local menu        = "rofi -show drun -show-icons"
 
@@ -349,8 +342,8 @@ hl.window_rule({
 })
 
  hl.window_rule({
-     name  = "kitty-transparency",
-     match = { class = "^(kitty)$" },
+     name  = "terminal-transparency",
+     match = { class = "^(kitty|com\.mitchellh\.ghostty)$" },
      opacity = "1.0 0.95",
      no_blur = false,
  })

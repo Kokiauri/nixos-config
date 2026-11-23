@@ -1,0 +1,41 @@
+/* Gruvbox titlebar + tabs for ghostty's GTK UI. Live-tweak with: GTK_DEBUG=interactive ghostty */
+
+headerbar, .top-bar, tabbar .box {
+  background: #282828;
+  color: #d4be98;
+  box-shadow: none;
+  border-bottom: 1px solid #45403d;
+  min-height: 30px;
+}
+
+headerbar .title, tabbar tab label {
+  font-family: "IosevkaTerm Nerd Font";
+  font-size: 10.5pt;
+  font-weight: bold;
+}
+
+tabbar tab {
+  color: #928374;
+  border-radius: 0;
+  margin: 0;
+}
+
+tabbar tab:selected {
+  background: #32302f;
+  color: #d8a657;
+  box-shadow: inset 0 -2px #e78a4e;
+}
+
+tabbar tab:hover:not(:selected) {
+  background: #3c3836;
+  color: #d4be98;
+}
+
+headerbar button {
+  color: #a89984;
+}
+
+headerbar button:hover {
+  color: #e78a4e;
+  background: #3c3836;
+}

@@ -1,0 +1,13 @@
+name: Local Config
+version: 1.0.0
+schema: v1
+models:
+  - name: Claude Haiku 4.5
+    provider: anthropic
+    model: claude-haiku-4-5-20251001
+    apiBase: http://rpi5-2:8317/v1/ # same proxy Claude Code uses
+    apiKey: ${{ secrets.ANTHROPIC_API_KEY }} # read from ~/.continue/.env (not in this repo)
+    roles:
+      - autocomplete
+      - chat
+      - edit

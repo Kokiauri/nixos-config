@@ -10,16 +10,6 @@ let
     };
   });
 
-  # nixpkgs lags behind; pull the newer release straight from extensions.gnome.org
-  lockscreenStudioLatest = pkgs.gnomeExtensions.lockscreen-studio.overrideAttrs (_: {
-    version = "11";
-    src = pkgs.fetchzip {
-      url = "https://extensions.gnome.org/extension-data/lockscreen-studiopedro.projects.v11.shell-extension.zip";
-      hash = "sha256-81BkTN29PlS5ht39+8Jd7OpqncdBvBGyaLzkXEfsNbk=";
-      stripRoot = false;
-    };
-  });
-
   # Dash to Dock has no "gap from screen edge" setting; lift the bottom dock off the edge
   dashToDockPadded = pkgs.gnomeExtensions.dash-to-dock.overrideAttrs (old: {
     postInstall = (old.postInstall or "") + ''
@@ -44,6 +34,40 @@ let
       })
     ];
   });
+
+  # Vim mode for LibreOffice; menu entry restricted to Writer (upstream also adds it to Draw/Impress)
+  vibreoffice = pkgs.stdenvNoCC.mkDerivation {
+    pname = "vibreoffice";
+    version = "0.1.4";
+    src = pkgs.fetchFromGitHub {
+      owner = "seanyeh";
+      repo = "vibreoffice";
+      rev = "b8d60b1ae75e169c6273258f8e0b1e09cea9f7af";
+      hash = "sha256-X3ATwW1+QNOV42g9MwaUi4cjm4j1gBRoKG9zm14Wn/c=";
+    };
+    nativeBuildInputs = [ pkgs.zip ];
+    postPatch = ''
+      substituteInPlace extension/template/AddonUI.xcu \
+        --replace-fail ',com.sun.star.drawing.DrawingDocument,com.sun.star.presentation.PresentationDocument' ""
+      patchShebangs compile.sh
+
+      # LibreOffice 26.8+ hands KeyEvent.KeyChar to Basic as a number, which upstream
+      # treats as a count digit -> "Overflow" on every key. Normalise it to a string.
+      sed -i 's/oEvent\.KeyChar/eventChar(oEvent)/g' src/vibreoffice.vbs
+      cat >> src/vibreoffice.vbs <<'EOF'
+
+      Function eventChar(oEvent) As String
+          If VarType(oEvent.KeyChar) = 8 Then
+              eventChar = oEvent.KeyChar
+          Else
+              eventChar = Chr(oEvent.KeyChar)
+          End If
+      End Function
+      EOF
+    '';
+    buildPhase = "VIBREOFFICE_VERSION=0.1.4 make extension";
+    installPhase = "install -Dm644 dist/vibreoffice-0.1.4.oxt $out/vibreoffice.oxt";
+  };
 in
 {
   home.username = "saponela";
@@ -83,13 +107,17 @@ in
   home.packages = with pkgs; [
     (writeShellScriptBin "gnome-save" ''
       ${dconf}/bin/dconf dump /org/gnome/shell/extensions/ > /etc/nixos/dotfiles/gnome/extensions.ini
-      ${git}/bin/git -C /etc/nixos add dotfiles/gnome/extensions.ini
-      echo "Saved GNOME extension settings to /etc/nixos/dotfiles/gnome/extensions.ini"
+      ${dconf}/bin/dconf read /org/gnome/shell/favorite-apps > /etc/nixos/dotfiles/gnome/favorite-apps
+      ${git}/bin/git -C /etc/nixos add dotfiles/gnome/extensions.ini dotfiles/gnome/favorite-apps
+      echo "Saved GNOME extension settings and dock pins to /etc/nixos/dotfiles/gnome/"
     '')
     hyprspacePatched
     # Development
     vscode
     jdk21_headless
+    gcc # C compiler
+    gnumake
+    gdb
     git
     gh
     docker
@@ -146,7 +174,8 @@ in
     swaylock-effects
     
     # Terminal & Shell
-    kitty
+    ghostty
+    kitty # fallback
     fish
     btop
     bat
@@ -182,6 +211,7 @@ in
     qbittorrent
     mpv
     google-chrome
+    brave
     prismlauncher
     protonup-qt
     ];
@@ -196,7 +226,11 @@ in
     ".config/fish".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/fish";
     ".config/hypr".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/hypr";
     ".config/kitty".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/kitty";
+    ".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/ghostty";
+    # ghostty.desktop is DBusActivatable; the session bus only scans ~/.local/share, not the HM profile
+    ".local/share/dbus-1/services/com.mitchellh.ghostty.service".source = "${pkgs.ghostty}/share/dbus-1/services/com.mitchellh.ghostty.service";
     ".config/Code/User/settings.json".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/vscode/User/settings.json";
+    ".continue/config.yaml".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/continue/config.yaml";
     ".config/fastfetch".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/fastfetch";
     ".config/tmux/tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/tmux/tmux.conf";
     ".config/tmux/cheatsheet.txt".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/tmux/cheatsheet.txt";
@@ -316,26 +350,43 @@ in
     done
   '';
 
+  # Writer: Tools → Add-Ons → "vibreoffice - Toggle Vi Mode". Reinstalls only when the .oxt changes.
+  home.activation.installVibreoffice = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    marker="$HOME/.config/libreoffice/.vibreoffice-installed"
+    if [ "$(cat "$marker" 2>/dev/null)" != "${vibreoffice}" ]; then
+      $DRY_RUN_CMD ${pkgs.libreoffice}/bin/unopkg add -f -s ${vibreoffice}/vibreoffice.oxt \
+        && $DRY_RUN_CMD mkdir -p "$(dirname "$marker")" \
+        && $DRY_RUN_CMD sh -c "echo ${vibreoffice} > $marker" \
+        || echo "vibreoffice: unopkg failed (is LibreOffice running?)"
+    fi
+  '';
+
   # Installs and enables GNOME extensions
   programs.gnome-shell = {
     enable = true;
     extensions = map (p: { package = p; }) (with pkgs.gnomeExtensions; [
-      appindicator
+      status-tray # app tray icons (Telegram, Steam, Discord...) folded into one button; replaces appindicator
       blur-my-shell
       clipboard-indicator
       caffeine
       vitals
       compiz-alike-magic-lamp-effect
       desktop-icons-ng-ding
-    ]) ++ [ { package = lockscreenStudioLatest; } { package = dashToDockPadded; } { package = justPerfectionPanelSpacing; } ];
+      wack-sonoma-lockscreen
+      home-assistant-extension
+    ]) ++ [ { package = dashToDockPadded; } { package = justPerfectionPanelSpacing; } ];
   };
 
-  # Extension *settings* are owned by the GUI, not dconf.settings, so they never get reset.
+  # Extension *settings* and dock pins (favorite-apps) are owned by the GUI, not dconf.settings, so they never get reset.
   # Run `gnome-save` to snapshot them into the repo; a fresh machine restores that snapshot once.
   home.activation.restoreGnomeExtensionSettings = lib.hm.dag.entryAfter [ "dconfSettings" ] ''
     if [ -z "$(${pkgs.dconf}/bin/dconf list /org/gnome/shell/extensions/)" ]; then
       $DRY_RUN_CMD ${pkgs.dbus}/bin/dbus-run-session --dbus-daemon=${pkgs.dbus}/bin/dbus-daemon \
         ${pkgs.dconf}/bin/dconf load /org/gnome/shell/extensions/ < ${../dotfiles/gnome/extensions.ini}
+    fi
+    if [ -z "$(${pkgs.dconf}/bin/dconf read /org/gnome/shell/favorite-apps)" ]; then
+      $DRY_RUN_CMD ${pkgs.dbus}/bin/dbus-run-session --dbus-daemon=${pkgs.dbus}/bin/dbus-daemon \
+        ${pkgs.dconf}/bin/dconf write /org/gnome/shell/favorite-apps "$(cat ${../dotfiles/gnome/favorite-apps})"
     fi
   '';
 
@@ -410,20 +461,6 @@ in
       # enabled-extensions is generated by programs.gnome-shell below;
       # clear disabled-extensions so a GUI toggle can't override it
       disabled-extensions = [];
-      favorite-apps = [
-        "zen-beta.desktop"
-        "kitty.desktop"
-        "org.gnome.Nautilus.desktop"
-        "code.desktop"
-        "spotify.desktop"
-        "org.telegram.desktop.desktop"
-        "legcord.desktop"
-        "com.stremio.Stremio.desktop"
-        "net.lutris.lutris.desktop"
-        "steam.desktop"
-        "obs-studio.desktop"
-        "obsidian.desktop"
-      ];
     };
 
     "org/gnome/settings-daemon/plugins/media-keys" = {
@@ -435,13 +472,13 @@ in
 
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
       name = "Launch Terminal (Ctrl-Alt-T)";
-      command = "kitty";
+      command = "ghostty";
       binding = "<Control><Alt>t";
     };
 
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
       name = "Launch Terminal (Super-Return)";
-      command = "kitty";
+      command = "ghostty";
       binding = "<Super>Return";
     };
 

@@ -7,6 +7,9 @@ set -gx TMPDIR /home/saponela/.cache/tmp
 fish_add_path /home/saponela/.spicetify
 fish_add_path /home/saponela/.local/bin
 
+# Key for the Claude proxy (used by nvim autocomplete). Kept outside this repo.
+test -f ~/.secrets/anthropic_api_key; and set -gx ANTHROPIC_API_KEY (cat ~/.secrets/anthropic_api_key)
+
 alias stremio="flatpak run com.stremio.Stremio"
 alias factorio="/home/saponela/.local/bin/factorio"
 alias tmux-help="less -R ~/.config/tmux/cheatsheet.txt"

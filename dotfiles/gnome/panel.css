@@ -10,5 +10,8 @@
 #panelBox #panel .panel-button .power-status.panel-status-indicators-box { spacing: 4px; }
 
 /* Vitals: gap between sensors, and between each icon and its value */
-#panelBox #panel .vitals-panel-menu { spacing: 10px; }
+#panelBox #panel .vitals-panel-menu { spacing: 10px; padding: 3px 0; }
 #panelBox #panel .vitals-panel-item .system-status-icon { margin-right: 4px; }
+
+/* Status Tray: one tray button, same 12px gap as its neighbours (ignore its 2px default) */
+#panelBox #panel .panel-button.status-tray-button { -natural-hpadding: 6px; -minimum-hpadding: 6px; }

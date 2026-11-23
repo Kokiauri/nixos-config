@@ -1,0 +1,36 @@
+# Gruvbox Material Dark Soft — same palette as dotfiles/kitty/current-theme.conf
+background = #32302f
+foreground = #d4be98
+
+selection-background = #d4be98
+selection-foreground = #32302f
+
+cursor-color = #a89984
+cursor-text  = #32302f
+
+# black
+palette = 0=#665c54
+palette = 8=#928374
+# red
+palette = 1=#ea6962
+palette = 9=#ea6962
+# green
+palette = 2=#a9b665
+palette = 10=#a9b665
+# yellow
+palette = 3=#e78a4e
+palette = 11=#d8a657
+# blue
+palette = 4=#7daea3
+palette = 12=#7daea3
+# magenta
+palette = 5=#d3869b
+palette = 13=#d3869b
+# cyan
+palette = 6=#89b482
+palette = 14=#89b482
+# white
+palette = 7=#d4be98
+palette = 15=#d4be98
+
+split-divider-color = #665c54

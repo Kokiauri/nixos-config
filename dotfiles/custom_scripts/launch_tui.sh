@@ -2,7 +2,9 @@
 
 launch_tui_app() {
   local term="kitty"
-  if command -v footclient >/dev/null 2>&1 && pgrep -x foot --server >/dev/null 2>&1; then
+  if command -v ghostty >/dev/null 2>&1; then
+    term="ghostty"
+  elif command -v footclient >/dev/null 2>&1 && pgrep -x foot --server >/dev/null 2>&1; then
     term="footclient"
   elif command -v foot >/dev/null 2>&1; then
     term="foot"
