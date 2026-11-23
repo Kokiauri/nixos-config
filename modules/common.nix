@@ -38,15 +38,6 @@ in
   services.xserver.enable = true;
   services.tailscale.enable = true;
 
-  # Display Manager & Desktop Environments
-  services.displayManager.gdm.enable = true;
-
-  # Enable GNOME Desktop
-  services.desktopManager.gnome.enable = true;
-
-  # Enable Hyprland
-  programs.hyprland.enable = true;
-
   # Configure keymap in X11 & Wayland
   services.xserver.xkb = {
     layout = "us,ge";
@@ -65,6 +56,8 @@ in
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # The x11-bell module segfaults when Xwayland exits at logout
+    extraConfig.pipewire."99-no-x11-bell"."context.properties"."module.x11.bell" = false;
     extraConfig.pipewire-pulse."99-block-minecraft-mic" = {
       "pulse.rules" = [
         {
@@ -90,7 +83,7 @@ in
     extraArgs = [
       # Browser tab processes ("Isolated Web Co") die gracefully; java (Minecraft) is no longer preferred
       "--prefer" "^(Isolated Web Co|chrome|chromium|electron|code|node)$"
-      "--avoid" "^(gnome-shell|Hyprland|Xwayland|gdm|pipewire|wireplumber|systemd|sshd)$"
+      "--avoid" "^(gnome-shell|kwin_wayland|plasmashell|Xwayland|gdm|sddm|pipewire|wireplumber|systemd|sshd)$"
     ];
   };
 
@@ -112,19 +105,13 @@ in
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.substituters = [
     "https://cache.nixos.org"
-    "https://noctalia.cachix.org"
   ];
   nix.settings.trusted-public-keys = [
     "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-    "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
   ];
 
   # Install firefox.
   programs.firefox.enable = true;
-
-  programs.hyprlock.enable = true;
-  services.hypridle.enable = lib.mkForce false; # started via hyprland.lua
-  security.pam.services.swaylock = {};
 
   programs.fish.enable = true;
 
@@ -234,12 +221,6 @@ in
     phinger-cursors-gruvbox-material
     vulkan-loader
     vulkan-tools
-
-    # GNOME Essentials (extensions live in home/default.nix -> programs.gnome-shell)
-    gnome-tweaks
-    gnome-extension-manager
-    dconf-editor
-    file-roller
   ];
 
   fonts.packages = with pkgs; [
@@ -271,9 +252,7 @@ in
     };
   };
   services.upower.enable = true;
-  services.blueman.enable = true;
   services.flatpak.enable = true;
-  services.logmein-hamachi.enable = true;
 
   # Open ports in the firewall.
   networking.firewall.enable = false;

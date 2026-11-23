@@ -24,8 +24,18 @@
   lazyvim = {
     url ="github:pfassina/lazyvim-nix";
   };
+  plasma-manager = {
+    url = "github:nix-community/plasma-manager";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.home-manager.follows = "home-manager";
+  };
   antigravity-nix = {
     url = "github:jacopone/antigravity-nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  # Must build against the exact KWin it runs in, hence the follows
+  kwin-effects-better-blur-dx = {
+    url = "github:xarblu/kwin-effects-better-blur-dx";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
@@ -62,6 +72,8 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hm-backup";
+          # Plasma rewrites files like ~/.gtkrc-2.0 at login; don't fail on stale backups
+          home-manager.overwriteBackup = true;
           home-manager.users.saponela = import ./home;
           home-manager.extraSpecialArgs = { inherit inputs; };
         }
